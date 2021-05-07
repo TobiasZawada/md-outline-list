@@ -20,9 +20,17 @@
 
 ;;; Commentary:
 
-;; 
+;; Markdown-mode uses `outline-minor-mode'
+;; for folding headlines. This package extends
+;; it to item lists.
 
+;;; Installation
+
+;; Just put this package in your `load-path' and load it.
 ;;; Code:
+
+(require 'outline-mode)
+(require 'markdown-mode)
 
 (defcustom md-outline-list-regexp "\\([[:blank:]]*\\)-[[:blank:]]" ;;
   "Regular expression for outlining lists in `markdown-mode'."
@@ -77,6 +85,7 @@ since `markdown-outline-level' is also called directly."
   (advice-add 'markdown-outline-level :around #'md-outline-list-level)
   (outline-minor-mode)
   (font-lock-add-keywords nil md-outline-list-keywords t))
+
 (add-hook 'markdown-mode-hook #'md-outline-list)
 
 (provide 'md-outline-list)
