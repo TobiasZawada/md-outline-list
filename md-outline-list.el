@@ -1,6 +1,6 @@
 ;;; md-outline-list.el --- outline list items in markdown  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  DREWOR020
+;; Copyright (C) 2021  Tobias Zawada
 
 ;; Author: Tobias Zawada <i@tn-home.de>
 ;; Keywords: outlines
