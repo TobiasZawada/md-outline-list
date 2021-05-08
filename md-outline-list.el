@@ -2,7 +2,7 @@
 
 ;; Copyright (C) 2021  DREWOR020
 
-;; Author: DREWOR020 <toz@smtp.1und1.de>
+;; Author: Tobias Zawada <i@tn-home.de>
 ;; Keywords: outlines
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -88,9 +88,30 @@ since `markdown-outline-level' is also called directly."
 This indicates that you can toggle the folding by mouse."
   :group 'md-outline-list)
 
+(defun md-outline-list-search-heading (bound)
+  "Search for Markdown headings up to BOUND.
+Set match data for the heading marker."
+  (when (markdown-match-inline-generic (concat "\\(" markdown-regex-header "\\)") bound)
+    (set-match-data
+     (cl-loop for i from 3 upto 5
+	      if (match-beginning i)
+	      return (list (match-beginning i)
+			   (match-end i)
+			   (current-buffer))))
+    (point)))
+
 (defvar md-outline-list-keywords
   `((markdown-match-list-items
      2
+     '(face
+       default
+       mouse-face md-outline-list-mouse-face
+       keymap
+       ,md-outline-list-mouse-keymap)
+     append
+     t)
+    (md-outline-list-search-heading
+     0
      '(face
        default
        mouse-face md-outline-list-mouse-face
