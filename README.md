@@ -7,4 +7,4 @@ Put `md-outline-list.el` into your `load-path` and insert the following lines in
 ```
 
 If you open a markdown file after that the list bullets and the heading texts are clickable.
-Pressing <kbd><mouse-1></kbd> will toggle between folded and unfolded state.
+Pressing <kbd>&langle;mouse-1&rangle;</kbd> will toggle between folded and unfolded state.
