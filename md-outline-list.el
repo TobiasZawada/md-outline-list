@@ -31,11 +31,6 @@
 (require 'outline)
 (require 'markdown-mode)
 
-(defcustom md-outline-list-regexp "\\([[:blank:]]*\\)-[[:blank:]]" ;;
-  "Regular expression for outlining lists in `markdown-mode'."
-  :group 'md-outline-list
-  :type 'string)
-
 (defconst md-outline-list-subexp 7
   "Subexpression in `outline-regexp' matching list markers.")
 
@@ -93,7 +88,7 @@ This indicates that you can toggle the folding by mouse."
 Set match data for the heading marker."
   (when (markdown-match-inline-generic (concat "\\(" markdown-regex-header "\\)") bound)
     (set-match-data
-     (cl-loop for i from 3 upto 5
+     (cl-loop for i in '(1 5)
 	      if (match-beginning i)
 	      return (list (match-beginning i)
 			   (match-end i)
