@@ -102,7 +102,7 @@ This indicates that you can toggle the folding by mouse."
   "Search for Markdown headings and items up to BOUND.
 Set match data for the heading marker."
   (when (markdown-match-inline-generic (concat "\\(" markdown-regex-header "\\|" markdown-regex-list "\\)") bound)
-    (set-mtch-data
+    (set-match-data
      (cl-loop for i in '(1 5)
 	      if (match-beginning i)
 	      return (list (match-beginning i)
