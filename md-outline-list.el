@@ -39,6 +39,19 @@
   :group 'md-outline-list
   :type 'wholenump)
 
+(define-fringe-bitmap
+  'md-outline-list-bmp-plus
+  [
+   #b00000000
+   #b00011000
+   #b00011000
+   #b01111110
+   #b01111110
+   #b00011000
+   #b00011000
+   #b00000000
+   ])
+
 (defun md-outline-list-level (fun)
   "Consider also lists for computing the outline level in `markdown-mode'.
 Sorry folks, this must be an advice for `markdown-outline-level' as FUN.
@@ -67,7 +80,9 @@ since `markdown-outline-level' is also called directly."
   (let ((posn (event-start event)))
     (with-selected-window (posn-window posn)
       (save-excursion
-	(goto-char (posn-point posn))
+	(let ((pt (posn-point posn)))
+	  (when (numberp pt)
+	    (goto-char pt)))
 	(outline-toggle-children)))))
 
 (defvar md-outline-list-mouse-keymap nil
@@ -83,11 +98,11 @@ since `markdown-outline-level' is also called directly."
 This indicates that you can toggle the folding by mouse."
   :group 'md-outline-list)
 
-(defun md-outline-list-search-heading (bound)
-  "Search for Markdown headings up to BOUND.
+(defun md-outline-list-search (bound)
+  "Search for Markdown headings and items up to BOUND.
 Set match data for the heading marker."
-  (when (markdown-match-inline-generic (concat "\\(" markdown-regex-header "\\)") bound)
-    (set-match-data
+  (when (markdown-match-inline-generic (concat "\\(" markdown-regex-header "\\|" markdown-regex-list "\\)") bound)
+    (set-mtch-data
      (cl-loop for i in '(1 5)
 	      if (match-beginning i)
 	      return (list (match-beginning i)
@@ -96,20 +111,12 @@ Set match data for the heading marker."
     (point)))
 
 (defvar md-outline-list-keywords
-  `((markdown-match-list-items
-     2
-     '(face
-       default
-       mouse-face md-outline-list-mouse-face
-       keymap
-       ,md-outline-list-mouse-keymap)
-     append
-     t)
-    (md-outline-list-search-heading
+  `((md-outline-list-search
      0
      '(face
        default
        mouse-face md-outline-list-mouse-face
+       line-prefix #(" " 0 1 (display (left-fringe md-outline-list-bmp-plus)))
        keymap
        ,md-outline-list-mouse-keymap)
      append
@@ -118,7 +125,10 @@ Set match data for the heading marker."
 
 (define-minor-mode md-outline-list-mode
   "Outline lists in `markdown-mode'."
-  nil nil nil
+  nil nil
+  (list
+   (cons (kbd "<left-fringe> <mouse-1>")
+	 #'md-outline-list-toggle-children))
   (if md-outline-list-mode
       (progn
 	(setq outline-regexp md-outline-list-regexp)
