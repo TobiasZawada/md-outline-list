@@ -28,6 +28,7 @@
 ;; Just put this package in your `load-path' and load it.
 ;;; Code:
 
+(require 'cl-lib)
 (require 'outline)
 (require 'markdown-mode)
 
@@ -38,6 +39,19 @@
   "First outline level for lists."
   :group 'md-outline-list
   :type 'wholenump)
+
+(define-fringe-bitmap
+  'md-outline-list-bmp-minus
+  [
+   #b00000000
+   #b00000000
+   #b00000000
+   #b01111110
+   #b01111110
+   #b00000000
+   #b00000000
+   #b00000000
+   ])
 
 (define-fringe-bitmap
   'md-outline-list-bmp-plus
@@ -116,12 +130,22 @@ Set match data for the heading marker."
      '(face
        default
        mouse-face md-outline-list-mouse-face
-       line-prefix #(" " 0 1 (display (left-fringe md-outline-list-bmp-plus)))
+       line-prefix #(" " 0 1 (display (left-fringe md-outline-list-bmp-minus)))
        keymap
        ,md-outline-list-mouse-keymap)
      append
      t))
   "Font lock keywords for folding list items with mouse clicks.")
+
+(defun md-outline-list-hook-fun ()
+  "Let outline overlays show + sign in fringe.
+This is a hook for `outline-view-change-hook'."
+  (cl-loop for ol being the overlays
+	   when (and (eq (overlay-get ol 'invisible) 'outline)
+		     (null (overlay-get ol 'before-string)))
+	   do
+	   (overlay-put ol 'before-string #(" " 0 1 (display (left-fringe md-outline-list-bmp-plus))))
+	   (overlay-put ol 'keymap md-outline-list-mouse-keymap)))
 
 (define-minor-mode md-outline-list-mode
   "Outline lists in `markdown-mode'."
@@ -133,10 +157,12 @@ Set match data for the heading marker."
       (progn
 	(setq outline-regexp md-outline-list-regexp)
 	(outline-minor-mode)
-	(font-lock-add-keywords nil md-outline-list-keywords t))
+	(font-lock-add-keywords nil md-outline-list-keywords t)
+	(add-hook 'outline-view-change-hook #'md-outline-list-hook-fun nil t))
     (setq outline-regexp markdown-regex-header)
     (outline-minor-mode -1)
-    (font-lock-remove-keywords nil md-outline-list-keywords)))
+    (font-lock-remove-keywords nil md-outline-list-keywords)
+    (remove-hook 'outline-view-change-hook #'md-outline-list-hook-fun t)))
 
 (add-hook 'markdown-mode-hook #'md-outline-list-mode)
 
